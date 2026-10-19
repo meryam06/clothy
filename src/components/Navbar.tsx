@@ -6,11 +6,13 @@ import { useRouter } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
 import { createClient } from "../lib/supabase/client";
 
+
 const LINKS = [
   { href: "/", label: "Home" },
   { href: "/shop", label: "Shop" },
   { href: "/styles", label: "Discover Styles" },
   { href: "/wardrobe", label: "My Wardrobe" },
+  { href: "/outfits", label: "My Outfits" },
   { href: "/planner", label: "Outfit Planner" },
   { href: "/stylist", label: "AI Stylist" },
   { href: "/sell", label: "Sell" },
