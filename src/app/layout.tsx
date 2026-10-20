@@ -1,3 +1,4 @@
+import FloatingStylistButton from "../components/FloatingStylistButton";
 import Navbar from '../components/Navbar';
 import type { ReactNode } from "react";
 import Footer from '../components/Footer';

@@ -13,7 +13,7 @@ export default function FavoriteButton() {
       aria-label={active ? "Retirer des favoris" : "Ajouter aux favoris"}
       aria-pressed={active}
       onClick={() => setActive(!active)}
-      className="absolute right-3 top-3 rounded-full bg-white/90 px-2.5 py-1 text-lg"
+      className="absolute right-3 top-3 rounded-full bg-white/90 px-2.5 py-1 text-lg text-black"
     >
       {active ? "♥" : "♡"}
     </button>

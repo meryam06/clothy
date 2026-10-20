@@ -593,7 +593,7 @@ export default function PlannerPage() {
                                 {warnings.map((x) => (
                                   <span key={x} className="block">⚠ {x}</span>
                                 ))}
-                                <button type="button" onClick={() => setEventOutfit(ev, outfit.id)} className="mt-1 underline">
+                                <button type="button" onClick={() => setEventOutfit(ev, outfit.id)} className="mt-1 block underline">
                                   Utiliser cette tenue
                                 </button>
                               </li>
