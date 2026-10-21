@@ -1,7 +1,11 @@
 import ProductCard from "../components/ProductCard";
-import { DEMO_PRODUCTS } from "../lib/demo-products";
+import { getProducts } from "../lib/products";
 
-export default function Home() {
+export const dynamic = "force-dynamic"; // les nouvelles annonces doivent apparaître tout de suite
+
+export default async function Home() {
+  const products = await getProducts();
+
   return (
     <div className="mx-auto max-w-6xl space-y-8 px-4 py-8">
       {/* Bloc d'accueil (ton design) */}
@@ -13,11 +17,11 @@ export default function Home() {
         </p>
       </section>
 
-      {/* Produits de démonstration : les 3 premiers de src/lib/demo-products.ts */}
+      {/* Les 3 premiers produits : les vraies annonces passent avant la démonstration */}
       <section>
         <h2 className="mb-6 text-2xl font-bold text-white">Nouveautés populaires</h2>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-          {DEMO_PRODUCTS.slice(0, 3).map((product) => (
+          {products.slice(0, 3).map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
         </div>

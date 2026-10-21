@@ -1,5 +1,6 @@
 "use client";
 
+import { useCart } from "../lib/cart";
 import Link from "next/link";
 import { useEffect, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
@@ -16,10 +17,12 @@ const LINKS = [
   { href: "/planner", label: "Outfit Planner" },
   { href: "/stylist", label: "AI Stylist" },
   { href: "/sell", label: "Sell" },
+  { href: "/orders", label: "My Orders" },
 ];
 
 export default function Navbar() {
   const router = useRouter();
+  const cart = useCart();
   const [supabase] = useState(() => createClient());
   const [user, setUser] = useState<User | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -68,7 +71,7 @@ export default function Navbar() {
 
         <div className="flex items-center gap-4 text-sm">
           <Link href="/wishlist" aria-label="Wishlist">♡ Wishlist</Link>
-          <Link href="/cart" aria-label="Panier">Panier</Link>
+          <Link href="/cart" aria-label="Panier">Panier{cart.length > 0 ? ` (${cart.length})` : ""}</Link>
           {user ? (
             <button type="button" onClick={handleLogout}>
               Déconnexion
