@@ -49,7 +49,7 @@ type DbProduct = {
 
 const SELECT =
   "id, title, description, brand_name, size, color, condition, price, currency, styles, created_at, brand_info_verified, " +
-  "categories(name), seller:profiles(username, full_name), product_images(url, position)";
+  "categories(name), seller:profiles!products_seller_id_fkey(username, full_name), product_images(url, position)";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
