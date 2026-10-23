@@ -1,2 +1,5 @@
 {
+{
+  "css.lint.unknownAtRules": "ignore"
+}
 }

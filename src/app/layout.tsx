@@ -3,7 +3,10 @@ import Navbar from '../components/Navbar';
 import type { ReactNode } from "react";
 import Footer from '../components/Footer';
 import './globals.css';
+import { Fraunces, DM_Sans } from "next/font/google";
 
+const heading = Fraunces({ subsets: ["latin"], variable: "--font-heading" });
+const body = DM_Sans({ subsets: ["latin"], variable: "--font-body" });
 export const metadata = {
   title: 'clothy - Garde-robe & Styliste AI',
   description: 'Application de gestion de tenue vestimentaire',
