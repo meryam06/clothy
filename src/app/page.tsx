@@ -1,3 +1,5 @@
+import Image from "next/image";
+import Link from "next/link";
 import ProductCard from "../components/ProductCard";
 import { getProducts } from "../lib/products";
 
@@ -7,25 +9,40 @@ export default async function Home() {
   const products = await getProducts();
 
   return (
-    <div className="mx-auto max-w-6xl space-y-8 px-4 py-8">
-      {/* Bloc d'accueil (ton design) */}
-      <section className="text-center py-12 bg-gray-50 rounded-2xl">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">Bienvenue sur Clothy</h1>
-        <p className="text-gray-600 max-w-xl mx-auto">
-          Votre assistant personnel de garde-robe et styliste propulsé par l&apos;IA.
-          Organisez vos tenues et créez votre style en toute simplicité.
-        </p>
+    <>
+      {/* Bannière : l'image de fleurs est le fond (public/hero-flowers.jpg) */}
+      <section className="relative isolate overflow-hidden">
+        <Image
+          src="/hero-flowers.jpg"
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="-z-10 object-cover"
+        />
+
+        <div className="mx-auto flex min-h-104 max-w-6xl flex-col items-center justify-center gap-6 px-4 py-20 text-center md:min-h-128">
+          <h1 className="max-w-3xl text-4xl font-semibold md:text-6xl">Bienvenue sur Clothy</h1>
+          <p className="max-w-xl text-lg">
+            Votre assistant personnel de garde-robe et styliste propulsé par l&apos;IA. Organisez
+            vos tenues et créez votre style en toute simplicité.
+          </p>
+          <div className="flex flex-wrap justify-center gap-3">
+            <Link href="/shop" className="btn btn-primary">Explorer le shop</Link>
+            <Link href="/stylist" className="btn bg-white/60">Rencontrer ton styliste</Link>
+          </div>
+        </div>
       </section>
 
       {/* Les 3 premiers produits : les vraies annonces passent avant la démonstration */}
-      <section>
-        <h2 className="mb-6 text-2xl font-bold text-white">Nouveautés populaires</h2>
+      <section className="mx-auto max-w-6xl px-4 py-12">
+        <h2 className="mb-6 text-2xl font-semibold">Nouveautés populaires</h2>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
           {products.slice(0, 3).map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
         </div>
       </section>
-    </div>
+    </>
   );
 }

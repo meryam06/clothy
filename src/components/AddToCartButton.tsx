@@ -11,7 +11,7 @@ export default function AddToCartButton({ item }: { item: CartItem }) {
     return (
       <div className="space-y-2">
         <p className="text-sm">Cet article est dans ton panier.</p>
-        <Link href="/cart" className="inline-block border px-5 py-2">
+        <Link href="/cart" className="btn">
           Voir mon panier
         </Link>
       </div>
@@ -19,7 +19,7 @@ export default function AddToCartButton({ item }: { item: CartItem }) {
   }
 
   return (
-    <button type="button" className="border px-5 py-2" onClick={() => addToCart(item)}>
+    <button type="button" className="btn btn-primary" onClick={() => addToCart(item)}>
       Ajouter au panier
     </button>
   );

@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "../../lib/supabase/client";
+import { createClient } from "@/lib/supabase/client";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -59,18 +59,18 @@ export default function LoginPage() {
           <div>
             <label htmlFor="name" className="block text-sm">Nom</label>
             <input id="name" required value={fullName} onChange={(e) => setFullName(e.target.value)}
-              className="w-full border px-3 py-2" />
+              className="field" />
           </div>
         )}
         <div>
           <label htmlFor="email" className="block text-sm">Email</label>
           <input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)}
-            className="w-full border px-3 py-2" />
+            className="field" />
         </div>
         <div>
           <label htmlFor="password" className="block text-sm">Mot de passe (6 caractères minimum)</label>
           <input id="password" type="password" required minLength={6} value={password}
-            onChange={(e) => setPassword(e.target.value)} className="w-full border px-3 py-2" />
+            onChange={(e) => setPassword(e.target.value)} className="field" />
         </div>
 
         {message && (
@@ -79,7 +79,7 @@ export default function LoginPage() {
           </p>
         )}
 
-        <button type="submit" disabled={loading} className="w-full border px-4 py-2">
+        <button type="submit" disabled={loading} className="btn btn-primary w-full">
           {loading ? "Patiente…" : mode === "login" ? "Se connecter" : "S'inscrire"}
         </button>
       </form>

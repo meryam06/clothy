@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import AddToCartButton from "../../../components/AddToCartButton";
 import { CONDITION_LABEL } from "../../../lib/demo-products";
 import { getProductById } from "../../../lib/products";
 
@@ -23,9 +24,9 @@ export default async function ProductPage({ params }: Props) {
         <div>
           {mainImage ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={mainImage} alt={product.title} className="aspect-[3/4] w-full object-cover" />
+            <img src={mainImage} alt={product.title} className="aspect-3/4 w-full object-cover" />
           ) : (
-            <div className="flex aspect-[3/4] w-full items-center justify-center bg-gray-200 text-gray-500">
+            <div className="flex aspect-3/4 w-full items-center justify-center bg-line text-muted">
               Pas de photo
             </div>
           )}
@@ -58,7 +59,7 @@ export default async function ProductPage({ params }: Props) {
           </ul>
 
           {/* Distinction entre informations vérifiées et informations du vendeur */}
-          <p className="border p-3 text-xs">
+          <p className="rounded-xl border border-line bg-surface p-3 text-xs">
             {product.isDemo
               ? "Produit de démonstration : ce n'est pas un vrai article en vente."
               : product.verifiedBrand
@@ -66,9 +67,22 @@ export default async function ProductPage({ params }: Props) {
                 : "Les informations de cette annonce (marque, état, taille) sont fournies par le vendeur et n'ont pas été vérifiées par Clothy."}
           </p>
 
-          <button type="button" className="border px-5 py-2" disabled>
-            Ajouter au panier (bientôt)
-          </button>
+          {product.isDemo ? (
+            <button type="button" className="btn" disabled>
+              Produit de démonstration : achat impossible
+            </button>
+          ) : (
+            <AddToCartButton
+              item={{
+                id: product.id,
+                title: product.title,
+                price: product.price,
+                currency: product.currency,
+                image: product.images[0] ?? null,
+                seller: product.seller,
+              }}
+            />
+          )}
         </div>
       </div>
     </main>

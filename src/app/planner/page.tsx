@@ -1,5 +1,7 @@
 "use client";
 
+/* eslint-disable @next/next/no-img-element */
+
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
 import type { User } from "@supabase/supabase-js";
@@ -17,7 +19,11 @@ const OCCASIONS = [
   { value: "other", label: "Autre" },
 ];
 
-const WEEKDAYS = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
+// true : la semaine commence le lundi (usage français) ; false : le dimanche (comme ton image de référence)
+const WEEK_STARTS_ON_MONDAY = false;
+const WEEKDAYS = WEEK_STARTS_ON_MONDAY
+  ? ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"]
+  : ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"];
 
 // ---------- Types ----------
 // Un événement (table "events")
@@ -42,6 +48,7 @@ type WardrobeItem = {
   category: string;
   waterproof: boolean;
   warmth_level: number | null;
+  image_path: string | null;
 };
 
 // Une tenue enregistrée et la liste de ses vêtements
@@ -64,7 +71,7 @@ type WeatherState =
   | { status: "ok"; data: Weather }
   | { status: "unavailable"; reason: string };
 
-const inputClass = "w-full border bg-white px-3 py-2 text-sm text-black";
+const inputClass = "field";
 
 // ---------- Petites fonctions utilitaires ----------
 function dateKey(d: Date | string): string {
@@ -202,6 +209,7 @@ export default function PlannerPage() {
   const [events, setEvents] = useState<EventRow[]>([]);
   const [outfits, setOutfits] = useState<OutfitRow[]>([]);
   const [wardrobe, setWardrobe] = useState<WardrobeItem[]>([]);
+  const [imageUrls, setImageUrls] = useState<Record<string, string>>({});
   const [weather, setWeather] = useState<Record<string, WeatherState>>({});
   const [refreshTick, setRefreshTick] = useState(0);
   const requestedWeather = useRef<Set<string>>(new Set());
@@ -237,7 +245,7 @@ export default function PlannerPage() {
         .from("outfits")
         .select("id, name, occasion, outfit_items(wardrobe_item_id)")
         .order("created_at", { ascending: false }),
-      supabase.from("wardrobe_items").select("id, name, category, waterproof, warmth_level"),
+      supabase.from("wardrobe_items").select("id, name, category, waterproof, warmth_level, image_path"),
     ]);
 
     if (evRes.error || outRes.error || itemRes.error) {
@@ -249,7 +257,19 @@ export default function PlannerPage() {
     }
     setEvents((evRes.data ?? []) as unknown as EventRow[]);
     setOutfits((outRes.data ?? []) as unknown as OutfitRow[]);
-    setWardrobe((itemRes.data ?? []) as unknown as WardrobeItem[]);
+    const items = (itemRes.data ?? []) as unknown as WardrobeItem[];
+    setWardrobe(items);
+
+    // Les photos de la garde-robe sont privées : liens temporaires (1 heure) pour les vignettes
+    const paths = items.map((i) => i.image_path).filter((p): p is string => !!p);
+    if (paths.length > 0) {
+      const { data: signed } = await supabase.storage.from("wardrobe").createSignedUrls(paths, 3600);
+      const map: Record<string, string> = {};
+      signed?.forEach((s) => {
+        if (s.path && s.signedUrl) map[s.path] = s.signedUrl;
+      });
+      setImageUrls(map);
+    }
   }, [supabase]);
 
   useEffect(() => {
@@ -386,10 +406,11 @@ export default function PlannerPage() {
   const itemsOfOutfit = (o: OutfitRow) =>
     o.outfit_items.map((oi) => itemById.get(oi.wardrobe_item_id)).filter((i): i is WardrobeItem => !!i);
 
-  // Calendrier du mois (semaine commençant le lundi)
+  // Calendrier du mois
   const year = month.getFullYear();
   const m = month.getMonth();
-  const offset = (new Date(year, m, 1).getDay() + 6) % 7;
+  const firstDay = new Date(year, m, 1).getDay();
+  const offset = WEEK_STARTS_ON_MONDAY ? (firstDay + 6) % 7 : firstDay;
   const daysInMonth = new Date(year, m + 1, 0).getDate();
   const cells: (string | null)[] = [
     ...Array<null>(offset).fill(null),
@@ -406,6 +427,17 @@ export default function PlannerPage() {
   const upcoming = events.filter((ev) => dateKey(ev.starts_at) >= todayKey).slice(0, 5);
   const dayEvents = eventsByDate[selectedDate] ?? [];
 
+  // Photos (4 au maximum) des vêtements d'une tenue, pour les vignettes du calendrier
+  function thumbUrls(outfitId: string | null): string[] {
+    if (!outfitId) return [];
+    const outfit = outfitById.get(outfitId);
+    if (!outfit) return [];
+    return itemsOfOutfit(outfit)
+      .map((i) => (i.image_path ? imageUrls[i.image_path] : undefined))
+      .filter((u): u is string => !!u)
+      .slice(0, 4);
+  }
+
   // Tenues conseillées : uniquement parmi MES tenues enregistrées (donc mes vêtements)
   function suggestionsFor(ev: EventRow, state: WeatherState | undefined) {
     const w = state?.status === "ok" ? state.data : null;
@@ -421,46 +453,107 @@ export default function PlannerPage() {
   }
 
   return (
-    <main className="mx-auto max-w-6xl px-4 py-8">
-      <h1 className="text-3xl font-bold">Calendar &amp; Weather Planner</h1>
-      <p className="mt-1 text-sm">Planifie tes événements, vois la météo et choisis la bonne tenue parmi tes vêtements.</p>
+    <main className="mx-auto max-w-2xl px-4 py-10">
+      <h1 className="text-center text-3xl font-semibold leading-tight md:text-4xl">
+        Planifie tes tenues,
+        <br />
+        évite le rush du matin
+      </h1>
+      <p className="mt-3 text-center text-sm text-muted">
+        Ajoute tes événements, vois la météo et choisis la bonne tenue parmi tes vêtements.
+      </p>
 
-      <div className="mt-6 grid gap-6 md:grid-cols-2">
+      <div className="mt-8 space-y-6">
         {/* ----- Calendrier du mois ----- */}
-        <section aria-label="Calendrier">
-          <div className="mb-3 flex items-center justify-between">
-            <button type="button" onClick={() => changeMonth(-1)} aria-label="Mois précédent" className="border px-3 py-1">←</button>
+        <section aria-label="Calendrier" className="rounded-3xl border border-line bg-surface p-4 shadow-sm md:p-6">
+          <div className="mb-4 flex items-center justify-between">
+            <button type="button" onClick={() => changeMonth(-1)} aria-label="Mois précédent"
+              className="rounded-full px-3 py-1 text-xl hover:bg-line">‹</button>
             <h2 className="text-lg font-semibold capitalize">
               {month.toLocaleDateString("fr-FR", { month: "long", year: "numeric" })}
             </h2>
-            <button type="button" onClick={() => changeMonth(1)} aria-label="Mois suivant" className="border px-3 py-1">→</button>
+            <button type="button" onClick={() => changeMonth(1)} aria-label="Mois suivant"
+              className="rounded-full px-3 py-1 text-xl hover:bg-line">›</button>
           </div>
 
-          <div className="grid grid-cols-7 gap-1 text-center text-xs">
+          <div className="grid grid-cols-7 gap-y-2 text-center">
             {WEEKDAYS.map((d) => (
-              <div key={d} className="py-1">{d}</div>
+              <div key={d} className="py-1 text-xs text-muted">{d}</div>
             ))}
-            {cells.map((key, idx) =>
-              key === null ? (
-                <div key={`empty-${idx}`} />
-              ) : (
+            {cells.map((key, idx) => {
+              if (key === null) return <div key={`empty-${idx}`} />;
+              const isToday = key === todayKey;
+              const isSelected = key === selectedDate;
+              const list = eventsByDate[key] ?? [];
+              const dayLabel = new Date(key + "T00:00:00").toLocaleDateString("fr-FR", {
+                day: "numeric",
+                month: "long",
+              });
+              return (
                 <button
                   key={key}
                   type="button"
                   onClick={() => selectDay(key)}
-                  aria-pressed={key === selectedDate}
-                  className={`aspect-square p-1 text-sm ${key === selectedDate ? "border-4" : "border"} ${key === todayKey ? "font-bold underline" : ""}`}
+                  aria-pressed={isSelected}
+                  aria-label={`${dayLabel}, ${list.length} événement(s)`}
+                  className={`flex min-h-16 flex-col items-center gap-1 rounded-xl py-1 sm:min-h-20 ${
+                    isSelected ? "bg-line" : "hover:bg-line/60"
+                  }`}
                 >
-                  {Number(key.slice(8))}
-                  {eventsByDate[key] && (
-                    <span className="block text-xs">● {eventsByDate[key].length}</span>
-                  )}
+                  <span
+                    className={`flex h-8 w-8 items-center justify-center rounded-full text-sm ${
+                      isToday ? "bg-deep text-paper" : ""
+                    }`}
+                  >
+                    {Number(key.slice(8))}
+                  </span>
+                  {list.slice(0, 2).map((ev) => {
+                    const urls = thumbUrls(ev.outfit_id);
+                    if (urls.length === 0) {
+                      return (
+                        <span key={ev.id} aria-hidden
+                          className={`h-2.5 w-2.5 rounded-full ${ev.outfit_id ? "bg-moss" : "bg-rose"}`} />
+                      );
+                    }
+                    return (
+                      <span key={ev.id} aria-hidden
+                        className={`grid h-9 w-9 gap-px overflow-hidden rounded-lg bg-line sm:h-12 sm:w-12 ${
+                          urls.length === 1 ? "grid-cols-1" : "grid-cols-2"
+                        }`}>
+                        {urls.map((u) => (
+                          <img key={u} src={u} alt="" className="h-full w-full object-cover" />
+                        ))}
+                      </span>
+                    );
+                  })}
+                  {list.length > 2 && <span className="text-xs text-muted">+{list.length - 2}</span>}
                 </button>
-              )
-            )}
+              );
+            })}
           </div>
 
-          <h3 className="mt-6 font-semibold">À venir</h3>
+          <p className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted">
+            <span className="flex items-center gap-1">
+              <span className="h-2.5 w-2.5 rounded-full bg-rose" /> événement sans tenue
+            </span>
+            <span className="flex items-center gap-1">
+              <span className="h-2.5 w-2.5 rounded-full bg-moss" /> tenue sans photo
+            </span>
+            <span>Les vignettes montrent la tenue choisie.</span>
+            <button
+              type="button"
+              className="underline"
+              onClick={() => {
+                const n = new Date();
+                setMonth(new Date(n.getFullYear(), n.getMonth(), 1));
+                selectDay(dateKey(n));
+              }}
+            >
+              Aujourd&apos;hui
+            </button>
+          </p>
+
+          <h3 className="mt-6 border-t border-line pt-4 font-semibold">À venir</h3>
           {upcoming.length === 0 ? (
             <p className="mt-1 text-sm">Aucun événement à venir.</p>
           ) : (
@@ -486,7 +579,7 @@ export default function PlannerPage() {
         </section>
 
         {/* ----- Événements du jour sélectionné ----- */}
-        <section aria-label="Événements du jour">
+        <section aria-label="Événements du jour" className="rounded-3xl border border-line bg-surface p-4 md:p-6">
           <div className="mb-3 flex items-center justify-between gap-3">
             <h2 className="text-lg font-semibold capitalize">
               {new Date(selectedDate + "T00:00:00").toLocaleDateString("fr-FR", {
@@ -495,7 +588,7 @@ export default function PlannerPage() {
                 month: "long",
               })}
             </h2>
-            <button type="button" onClick={refreshWeather} className="border px-3 py-1 text-xs">
+            <button type="button" onClick={refreshWeather} className="btn text-xs">
               Actualiser la météo
             </button>
           </div>
@@ -512,7 +605,7 @@ export default function PlannerPage() {
                 const suggestions = suggestionsFor(ev, state);
 
                 return (
-                  <article key={ev.id} className="border p-3">
+                  <article key={ev.id} className="rounded-2xl border border-line p-4">
                     <div className="flex items-start justify-between gap-2">
                       <div>
                         <h3 className="font-semibold">{ev.title}</h3>
@@ -593,7 +686,7 @@ export default function PlannerPage() {
                                 {warnings.map((x) => (
                                   <span key={x} className="block">⚠ {x}</span>
                                 ))}
-                                <button type="button" onClick={() => setEventOutfit(ev, outfit.id)} className="mt-1 block underline">
+                                <button type="button" onClick={() => setEventOutfit(ev, outfit.id)} className="mt-1 underline">
                                   Utiliser cette tenue
                                 </button>
                               </li>
@@ -611,7 +704,7 @@ export default function PlannerPage() {
       </div>
 
       {/* ----- Formulaire ----- */}
-      <form onSubmit={handleSubmit} className="mt-8 grid gap-4 border p-4 md:grid-cols-2">
+      <form onSubmit={handleSubmit} className="mt-6 grid gap-4 rounded-3xl border border-line bg-surface p-4 md:grid-cols-2 md:p-6">
         <h2 className="text-xl font-semibold md:col-span-2">Ajouter un événement</h2>
 
         <div>
@@ -667,7 +760,7 @@ export default function PlannerPage() {
         </div>
 
         <div className="md:col-span-2">
-          <button type="submit" disabled={saving} className="border px-5 py-2">
+          <button type="submit" disabled={saving} className="btn btn-primary">
             {saving ? "Enregistrement…" : "Ajouter l'événement"}
           </button>
         </div>

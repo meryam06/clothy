@@ -91,7 +91,7 @@ export default function OrdersPage() {
       <main className="mx-auto max-w-4xl px-4 py-12">
         <h1 className="text-3xl font-bold">My Orders &amp; Sales</h1>
         <p className="mt-3">Connecte-toi pour voir tes commandes.</p>
-        <Link href="/login" className="mt-4 inline-block border px-5 py-2">Se connecter</Link>
+        <Link href="/login" className="btn mt-4">Se connecter</Link>
       </main>
     );
   }
@@ -106,11 +106,11 @@ export default function OrdersPage() {
 
       <div className="mt-4 flex gap-3">
         <button type="button" onClick={() => setTab("purchases")} aria-pressed={tab === "purchases"}
-          className={`px-4 py-2 text-sm ${tab === "purchases" ? "border-4" : "border"}`}>
+          className={`btn ${tab === "purchases" ? "btn-primary" : ""}`}>
           Mes achats ({purchases.length})
         </button>
         <button type="button" onClick={() => setTab("sales")} aria-pressed={tab === "sales"}
-          className={`px-4 py-2 text-sm ${tab === "sales" ? "border-4" : "border"}`}>
+          className={`btn ${tab === "sales" ? "btn-primary" : ""}`}>
           Mes ventes ({sales.length})
         </button>
       </div>
@@ -136,7 +136,7 @@ export default function OrdersPage() {
             const ship = order.shipping_address;
 
             return (
-              <article key={order.id} className="border p-4">
+              <article key={order.id} className="rounded-2xl border border-line bg-surface p-4">
                 <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
                   <p>
                     Commande du {formatDate(order.created_at)} ·{" "}
@@ -152,7 +152,7 @@ export default function OrdersPage() {
                         // eslint-disable-next-line @next/next/no-img-element
                         <img src={line.image_url} alt={line.title ?? "Article"} className="h-16 w-12 object-cover" />
                       ) : (
-                        <div className="flex h-16 w-12 items-center justify-center bg-gray-200 text-xs text-gray-500">—</div>
+                        <div className="flex h-16 w-12 items-center justify-center bg-line text-xs text-muted">—</div>
                       )}
                       <span className="flex-1">{line.title ?? "Article"}</span>
                       <span>{line.unit_price}</span>
@@ -161,7 +161,7 @@ export default function OrdersPage() {
                 </ul>
 
                 {tab === "sales" && ship && (
-                  <div className="mt-3 border-t pt-3 text-xs">
+                  <div className="mt-3 border-t border-line pt-3 text-xs">
                     <p className="font-semibold">À expédier à :</p>
                     <p>{ship.name}{ship.phone ? ` · ${ship.phone}` : ""}</p>
                     <p>{ship.address}{ship.city ? `, ${ship.city}` : ""}</p>
@@ -170,12 +170,12 @@ export default function OrdersPage() {
 
                 <div className="mt-3 text-sm">
                   {tab === "sales" && (order.status === "paid" || order.status === "pending") && (
-                    <button type="button" onClick={() => updateStatus(order.id, "shipped")} className="border px-4 py-2">
+                    <button type="button" onClick={() => updateStatus(order.id, "shipped")} className="btn">
                       Marquer comme expédiée
                     </button>
                   )}
                   {tab === "purchases" && order.status === "shipped" && (
-                    <button type="button" onClick={() => updateStatus(order.id, "delivered")} className="border px-4 py-2">
+                    <button type="button" onClick={() => updateStatus(order.id, "delivered")} className="btn">
                       J&apos;ai reçu ma commande
                     </button>
                   )}

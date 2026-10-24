@@ -1,8 +1,8 @@
+import './globals.css';
 import FloatingStylistButton from "../components/FloatingStylistButton";
 import Navbar from '../components/Navbar';
 import type { ReactNode } from "react";
 import Footer from '../components/Footer';
-import './globals.css';
 import { Fraunces, DM_Sans } from "next/font/google";
 
 const heading = Fraunces({ subsets: ["latin"], variable: "--font-heading" });
@@ -15,7 +15,7 @@ export const metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="fr">
-      <body className="min-h-screen flex flex-col justify-between">
+      <body className="min-h-screen flex flex-col">
         <Navbar />
         <main className="flex-1 p-6">{children}</main>
         <Footer />

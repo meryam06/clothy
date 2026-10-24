@@ -7,7 +7,7 @@ import type { User } from "@supabase/supabase-js";
 import { createClient } from "../../lib/supabase/client";
 import { clearCart, removeFromCart, useCart } from "../../lib/cart";
 
-const inputClass = "w-full border bg-white px-3 py-2 text-sm text-black";
+const inputClass = "field";
 
 export default function CartPage() {
   const router = useRouter();
@@ -80,12 +80,12 @@ export default function CartPage() {
         <>
           <ul className="mt-6 space-y-3">
             {items.map((item) => (
-              <li key={item.id} className="flex items-center gap-4 border p-3">
+              <li key={item.id} className="flex items-center gap-4 rounded-2xl border border-line bg-surface p-3">
                 {item.image ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={item.image} alt={item.title} className="h-20 w-16 object-cover" />
                 ) : (
-                  <div className="flex h-20 w-16 items-center justify-center bg-gray-200 text-xs text-gray-500">—</div>
+                  <div className="flex h-20 w-16 items-center justify-center bg-line text-xs text-muted">—</div>
                 )}
                 <div className="flex-1">
                   <Link href={`/shop/${item.id}`} className="font-semibold underline">{item.title}</Link>
@@ -108,7 +108,7 @@ export default function CartPage() {
             </p>
           )}
 
-          <p className="mt-6 border p-3 text-sm">
+          <p className="mt-6 rounded-xl border border-line bg-surface p-3 text-sm">
             Mode démonstration : aucun vrai paiement n&apos;est effectué. La commande est enregistrée comme « payée (simulation) ».
           </p>
 
@@ -117,7 +117,7 @@ export default function CartPage() {
               <Link href="/login" className="underline">Connecte-toi</Link> pour passer la commande.
             </p>
           ) : (
-            <form onSubmit={handleOrder} className="mt-6 grid gap-4 border p-4 md:grid-cols-2">
+            <form onSubmit={handleOrder} className="mt-6 grid gap-4 rounded-2xl border border-line bg-surface p-4 md:grid-cols-2">
               <h2 className="text-xl font-semibold md:col-span-2">Livraison</h2>
               <div>
                 <label htmlFor="name" className="block text-sm">Nom complet *</label>
@@ -139,7 +139,7 @@ export default function CartPage() {
                 Ces informations sont visibles uniquement par le vendeur, pour préparer l&apos;expédition.
               </p>
               <div className="md:col-span-2">
-                <button type="submit" disabled={placing || mixedCurrencies} className="border px-5 py-2">
+                <button type="submit" disabled={placing || mixedCurrencies} className="btn btn-primary">
                   {placing ? "Commande en cours…" : "Passer la commande (simulation)"}
                 </button>
               </div>

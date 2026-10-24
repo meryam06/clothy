@@ -1,26 +1,177 @@
 @import "tailwindcss";
 
+/* =====================================================================
+   PALETTE CLOTHY (ton image de référence)
+   ===================================================================== */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* --- Les 5 couleurs de la marque --- */
+  --deep: #0a3323;  /* vert foncé : élégance, profondeur */
+  --moss: #839958;  /* vert mousse : fraîcheur, accents */
+  --paper: #ffffff; /* blanc : fond principal et texte sur les sections foncées */
+  --rose: #d3968c;  /* rose brun : féminité, mise en avant */
+  --teal: #105666;  /* vert minuit : contraste, modernité */
+
+  /* --- Rôles utilisés par le site (tu peux les réaffecter) --- */
+  --page: var(--paper);        /* fond du site */
+  --page-ink: var(--deep);     /* texte sur le fond du site (contraste 13,9:1) */
+  --surface: #ffffff;          /* cartes et champs */
+  --surface-ink: var(--deep);
+  --muted: #4a5c4f;            /* texte secondaire (contraste 7,2:1 sur blanc) */
+  --accent: var(--deep);       /* bouton principal */
+  --accent-ink: var(--paper);  /* texte du bouton principal */
+  --line: #e3e6e1;             /* bordures décoratives et fonds de survol (gris clair) */
+  --control-line: #7d8c82;     /* bordure des champs de formulaire (contraste 3,5:1, recommandé pour l'accessibilité) */
+  --focus: var(--teal);        /* contour du clavier sur fond clair */
+  --radius: 0.5rem;            /* arrondi : 0 = angles droits, plus élégant et "éditorial" */
 }
 
+/* Noms utilisables dans Tailwind : bg-deep, text-paper, bg-rose, bg-teal, bg-moss... */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-deep: var(--deep);
+  --color-moss: var(--moss);
+  --color-paper: var(--paper);
+  --color-rose: var(--rose);
+  --color-teal: var(--teal);
+  --color-page: var(--page);
+  --color-page-ink: var(--page-ink);
+  --color-surface: var(--surface);
+  --color-surface-ink: var(--surface-ink);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-line: var(--line);
+  --color-control: var(--control-line);
+  --font-sans: var(--font-body, Arial), Helvetica, sans-serif;
+  --font-display: var(--font-heading, Georgia), serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* =====================================================================
+   BASE
+   ===================================================================== */
+body {
+  background: var(--page);
+  color: var(--page-ink);
+  font-family: var(--font-body, Arial), Helvetica, sans-serif;
+  line-height: 1.6;
+}
+
+/* Titres éditoriaux : police à empattements (voir layout.tsx) */
+h1,
+h2,
+h3 {
+  font-family: var(--font-heading, Georgia), serif;
+  line-height: 1.15;
+}
+
+/* Accessibilité : contour visible pour la navigation au clavier. À garder. */
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+/* =====================================================================
+   SECTIONS EN BLOCS DE COULEUR (color-blocking)
+   Chaque classe fixe le fond ET une couleur de texte qui reste lisible.
+   Utilisation : <section className="section-deep"> ... </section>
+   ===================================================================== */
+@layer components {
+  /* Vert foncé + blanc : le plus élégant (contraste 13,9:1) -> navigation, footer, collection signature */
+  .section-deep {
+    background: var(--deep);
+    color: var(--paper);
+    --focus: var(--paper);
+    --accent: var(--paper);
+    --accent-ink: var(--deep);
+    --line: #2f5546;
+    --control-line: #6a8a7b;
+    --muted: #cfd9d3;
+  }
+
+  /* Vert minuit + blanc : moments de contraste (8,3:1) */
+  .section-teal {
+    background: var(--teal);
+    color: var(--paper);
+    --focus: var(--paper);
+    --accent: var(--paper);
+    --accent-ink: var(--teal);
+    --line: #3f7280;
+    --control-line: #8fb0a2;
+    --muted: #d3e2e6;
+  }
+
+  /* Rose brun + vert foncé : éditorial, promotions (5,6:1). Ne PAS mettre de texte blanc dessus (2,5:1) */
+  .section-rose {
+    background: var(--rose);
+    color: var(--deep);
+    --focus: var(--deep);
+    --control-line: var(--deep);
+    --muted: #3a2f2c;
+  }
+
+  /* Vert mousse + vert foncé : accents (4,4:1) -> réserve-le aux GRANDS titres (au moins 24 px) */
+  .section-moss {
+    background: var(--moss);
+    color: var(--deep);
+    --focus: var(--deep);
+    --control-line: var(--deep);
+    --muted: var(--deep);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* =====================================================================
+   ÉLÉMENTS RÉUTILISABLES : change le style ici, il s'applique partout
+   ===================================================================== */
+@layer components {
+  .btn {
+    display: inline-block;
+    padding: 0.7rem 1.4rem;
+    border: 1px solid currentColor;
+    border-radius: var(--radius);
+    background: transparent;
+    color: inherit;
+    font-size: 0.875rem;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: opacity 0.2s ease, background 0.2s ease, color 0.2s ease;
+  }
+  .btn:hover {
+    opacity: 0.8;
+  }
+  .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* Bouton principal : vert foncé sur blanc, et l'inverse dans les sections foncées */
+  .btn-primary {
+    background: var(--accent);
+    color: var(--accent-ink);
+    border-color: var(--accent);
+  }
+
+  .card {
+    background: var(--surface);
+    color: var(--surface-ink);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 1rem;
+  }
+
+  .field {
+    width: 100%;
+    padding: 0.55rem 0.75rem;
+    background: var(--surface);
+    color: var(--surface-ink);
+    border: 1px solid var(--control-line);
+    border-radius: var(--radius);
+    font-size: 0.875rem;
+  }
+
+  .badge {
+    display: inline-block;
+    border: 1px solid currentColor;
+    border-radius: 999px;
+    padding: 0.1rem 0.6rem;
+    font-size: 0.75rem;
+  }
 }

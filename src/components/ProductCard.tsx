@@ -5,7 +5,7 @@ import type { ShopProduct } from "../lib/products";
 
 export default function ProductCard({ product }: { product: ShopProduct }) {
   return (
-    <div className="relative flex flex-col justify-between rounded-lg border bg-white p-4 shadow-sm">
+    <div className="relative flex flex-col justify-between rounded-2xl border border-line bg-surface p-4 shadow-sm">
       <div>
         {/* TOI : tu peux changer la forme et la taille de l'image */}
         {product.images[0] ? (
@@ -13,42 +13,39 @@ export default function ProductCard({ product }: { product: ShopProduct }) {
           <img
             src={product.images[0]}
             alt={product.title}
-            className="mb-4 h-64 w-full rounded-md object-cover"
+            className="mb-4 h-64 w-full rounded-xl object-cover"
           />
         ) : (
-          <div className="mb-4 flex h-64 items-center justify-center rounded-md bg-gray-100 text-gray-400">
+          <div className="mb-4 flex h-64 items-center justify-center rounded-xl bg-line text-muted">
             Image produit
           </div>
         )}
 
-        <div className="mb-1 flex flex-wrap gap-1 text-xs text-gray-700">
-          {product.isDemo && <span className="border px-1.5 py-0.5">Démo</span>}
-          {product.isSecondHand && <span className="border px-1.5 py-0.5">Seconde main</span>}
-          {product.verifiedBrand && <span className="border px-1.5 py-0.5">Marque vérifiée</span>}
+        <div className="mb-2 flex flex-wrap gap-1">
+          {product.isDemo && <span className="badge">Démo</span>}
+          {product.isSecondHand && <span className="badge">Seconde main</span>}
+          {product.verifiedBrand && <span className="badge">Marque vérifiée</span>}
         </div>
 
-        <h3 className="text-lg font-semibold text-gray-800">{product.title}</h3>
-        <p className="mt-1 text-sm text-gray-500">
+        <h3 className="text-lg font-semibold">{product.title}</h3>
+        <p className="mt-1 text-sm text-muted">
           {product.brand} · {product.category}
         </p>
-        <p className="mt-1 text-xs text-gray-500">
+        <p className="mt-1 text-xs text-muted">
           {CONDITION_LABEL[product.condition]} · Taille {product.size}
         </p>
       </div>
 
       <div className="mt-4 flex items-center justify-between">
-        <span className="font-bold text-black">
+        <span className="font-semibold">
           {product.price} {product.currency}
         </span>
-        <Link
-          href={`/shop/${product.id}`}
-          className="rounded-md bg-black px-4 py-2 text-sm text-white hover:bg-gray-800"
-        >
+        <Link href={`/shop/${product.id}`} className="btn btn-primary">
           Voir
         </Link>
       </div>
 
-      <FavoriteButton />
+      {!product.isDemo && <FavoriteButton productId={product.id} />}
     </div>
   );
 }

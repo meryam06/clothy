@@ -20,6 +20,7 @@ export type ShopProduct = {
   condition: Condition;
   seller: string;
   styles: string[];
+  seasons: string[];
   isSecondHand: boolean;
   isNew: boolean;
   description: string;
@@ -29,7 +30,7 @@ export type ShopProduct = {
 };
 
 // Forme d'une ligne renvoyée par Supabase (avec les tables liées)
-type DbProduct = {
+export type DbProduct = {
   id: string;
   title: string;
   description: string | null;
@@ -40,6 +41,7 @@ type DbProduct = {
   price: number;
   currency: string;
   styles: string[] | null;
+  seasons: string[] | null;
   created_at: string;
   brand_info_verified: boolean;
   categories: { name: string } | { name: string }[] | null;
@@ -47,8 +49,8 @@ type DbProduct = {
   product_images: { url: string; position: number }[] | null;
 };
 
-const SELECT =
-  "id, title, description, brand_name, size, color, condition, price, currency, styles, created_at, brand_info_verified, " +
+export const SELECT =
+  "id, title, description, brand_name, size, color, condition, price, currency, styles, seasons, created_at, brand_info_verified, " +
   "categories(name), seller:profiles!products_seller_id_fkey(username, full_name), product_images(url, position)";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -67,7 +69,7 @@ function first<T>(value: T | T[] | null): T | null {
   return value;
 }
 
-function fromDb(p: DbProduct): ShopProduct {
+export function fromDb(p: DbProduct): ShopProduct {
   const seller = first(p.seller);
   // Pour protéger la vie privée, on affiche le pseudo, sinon seulement le prénom
   const sellerName = seller?.username || seller?.full_name?.split(" ")[0] || "Vendeur Clothy";
@@ -84,6 +86,7 @@ function fromDb(p: DbProduct): ShopProduct {
     condition: p.condition,
     seller: sellerName,
     styles: p.styles ?? [],
+    seasons: p.seasons ?? [],
     isSecondHand: p.condition !== "new",
     isNew: ageDays <= 14,
     description: p.description || "Pas de description.",
@@ -95,7 +98,7 @@ function fromDb(p: DbProduct): ShopProduct {
 
 function demoProducts(): ShopProduct[] {
   if (!SHOW_DEMO) return [];
-  return DEMO_PRODUCTS.map((p) => ({ ...p, images: [], isDemo: true, verifiedBrand: false }));
+  return DEMO_PRODUCTS.map((p) => ({ ...p, seasons: [], images: [], isDemo: true, verifiedBrand: false }));
 }
 
 // Toutes les annonces actives (les vraies d'abord), plus la démonstration
