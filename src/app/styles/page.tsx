@@ -1,16 +1,17 @@
+import Image from "next/image";
 import Link from "next/link";
 import { getProducts } from "../../lib/products";
 import { SEASONS, STYLES } from "../../lib/styles";
 
-export const dynamic = "force-dynamic"; // les nombres d'annonces doivent toujours être à jour
+export const dynamic = "force-dynamic"; // les nombres d'articles doivent toujours être à jour
 
-// Couleurs des cartes (toutes lisibles avec leur texte, voir globals.css)
+// Couleurs des blocs de texte (toutes lisibles avec leur texte, voir globals.css)
 const BLOCKS = ["section-deep", "section-teal", "section-rose"];
 
 export default async function StylesPage() {
   const products = await getProducts();
 
-  // Nombre d'annonces pour un style (sans tenir compte des majuscules)
+  // Nombre d'articles pour un style (sans tenir compte des majuscules)
   const countStyle = (name: string) =>
     products.filter((p) => p.styles.some((s) => s.toLowerCase() === name.toLowerCase())).length;
   const countSeason = (value: string) => products.filter((p) => p.seasons.includes(value)).length;
@@ -22,22 +23,42 @@ export default async function StylesPage() {
         Trouve ton style, ou essaie-en un nouveau. Choisis une ambiance pour voir les articles qui lui correspondent.
       </p>
 
-      <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {STYLES.map((style, i) => {
           const n = countStyle(style.name);
           return (
             <Link
               key={style.name}
               href={`/shop?style=${encodeURIComponent(style.name)}`}
-              className={`${BLOCKS[i % BLOCKS.length]} flex min-h-44 flex-col justify-between rounded-2xl p-6 transition hover:-translate-y-0.5`}
+              className="group flex flex-col overflow-hidden rounded-2xl border border-line transition hover:-translate-y-0.5"
             >
-              <div>
-                <h2 className="text-2xl font-semibold">{style.name}</h2>
-                <p className="mt-2 text-sm">{style.description}</p>
+              {/* Photo du style (si elle existe) : object-top garde le visage et le haut de la tenue */}
+              {style.image && (
+                <div className="relative aspect-[4/5] w-full overflow-hidden bg-line">
+                  <Image
+                    src={style.image}
+                    alt={style.imageAlt ?? ""}
+                    fill
+                    sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                    className="object-cover object-top transition duration-500 group-hover:scale-105"
+                  />
+                </div>
+              )}
+
+              {/* Bloc de couleur avec le texte : sans photo, il remplit toute la carte */}
+              <div
+                className={`${BLOCKS[i % BLOCKS.length]} flex flex-1 flex-col justify-between p-6 ${
+                  style.image ? "" : "min-h-44"
+                }`}
+              >
+                <div>
+                  <h2 className="text-2xl font-semibold">{style.name}</h2>
+                  <p className="mt-2 text-sm">{style.description}</p>
+                </div>
+                <p className="mt-6 text-sm underline underline-offset-4">
+                  {n === 0 ? "Bientôt des articles" : `${n} article${n > 1 ? "s" : ""} →`}
+                </p>
               </div>
-              <p className="mt-6 text-sm underline underline-offset-4">
-                {n === 0 ? "Bientôt des articles" : `${n} article${n > 1 ? "s" : ""} →`}
-              </p>
             </Link>
           );
         })}
