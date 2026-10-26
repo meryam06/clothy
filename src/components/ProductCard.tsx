@@ -1,25 +1,25 @@
 import Link from "next/link";
 import FavoriteButton from "./FavoriteButton";
+import ProductImage from "./ProductImage";
 import { CONDITION_LABEL } from "../lib/demo-products";
 import type { ShopProduct } from "../lib/products";
 
 export default function ProductCard({ product }: { product: ShopProduct }) {
+  const href = `/shop/${product.id}`;
+
   return (
     <div className="relative flex flex-col justify-between rounded-2xl border border-line bg-surface p-4 shadow-sm">
       <div>
-        {/* TOI : tu peux changer la forme et la taille de l'image */}
-        {product.images[0] ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={product.images[0]}
-            alt={product.title}
-            className="mb-4 h-64 w-full rounded-xl object-cover"
-          />
-        ) : (
-          <div className="mb-4 flex h-64 items-center justify-center rounded-xl bg-line text-muted">
-            Image produit
-          </div>
-        )}
+        {/* Clique sur la photo : le prix s'affiche sur l'article mis en avant */}
+        <ProductImage
+          src={product.images[0] ?? null}
+          alt={product.title}
+          title={product.title}
+          price={product.price}
+          currency={product.currency}
+          href={href}
+          hotspot={product.hotspot}
+        />
 
         <div className="mb-2 flex flex-wrap gap-1">
           {product.isDemo && <span className="badge">Démo</span>}
@@ -40,7 +40,7 @@ export default function ProductCard({ product }: { product: ShopProduct }) {
         <span className="font-semibold">
           {product.price} {product.currency}
         </span>
-        <Link href={`/shop/${product.id}`} className="btn btn-primary">
+        <Link href={href} className="btn btn-primary">
           Voir
         </Link>
       </div>

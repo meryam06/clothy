@@ -1,5 +1,5 @@
 // DONNÉES DE DÉMONSTRATION : ce ne sont PAS de vrais produits ni un vrai stock.
-// Plus tard, on les remplacera par les produits de la table "products" de Supabase.
+// Les marques et les prix sont des estimations. Les vraies annonces se publient depuis la page /sell.
 
 export type Condition = "new" | "like_new" | "good" | "fair";
 
@@ -15,9 +15,14 @@ export type Product = {
   condition: Condition;
   seller: string;
   styles: string[];
+  seasons?: string[];
   isSecondHand: boolean;
   isNew: boolean;
   description: string;
+  // Photos rangées dans public/demo/ : la 1re est celle de la carte, les suivantes sont sur la fiche produit
+  images?: string[];
+  // Position (en %) du point sur la photo : c'est là que s'affiche l'étiquette de prix quand on clique sur l'image
+  hotspot?: { x: number; y: number };
 };
 
 export const CONDITION_LABEL: Record<Condition, string> = {
@@ -28,14 +33,126 @@ export const CONDITION_LABEL: Record<Condition, string> = {
 };
 
 export const DEMO_PRODUCTS: Product[] = [
-  { id: "1", title: "Trench beige classique", brand: "Atelier Démo", price: 899, currency: "MAD", category: "Coats", size: "M", color: "Beige", condition: "new", seller: "Clothy (catalogue démo)", styles: ["Classic", "Chic"], isSecondHand: false, isNew: true, description: "Trench long en coton, coupe droite. Produit de démonstration." },
-  { id: "2", title: "Sneakers blanches", brand: "Maison Test", price: 499, currency: "MAD", category: "Sneakers", size: "42", color: "Blanc", condition: "new", seller: "Clothy (catalogue démo)", styles: ["Casual", "Minimalist"], isSecondHand: false, isNew: true, description: "Sneakers en cuir blanc, semelle fine. Produit de démonstration." },
-  { id: "3", title: "Jean droit brut", brand: "Denim Démo", price: 350, currency: "MAD", category: "Jeans", size: "L", color: "Bleu", condition: "good", seller: "Sara (vendeuse démo)", styles: ["Streetwear", "Casual"], isSecondHand: true, isNew: false, description: "Jean droit porté quelques fois. Annonce de démonstration." },
-  { id: "4", title: "Chemise en lin", brand: "Atelier Démo", price: 280, currency: "MAD", category: "Shirts", size: "M", color: "Écru", condition: "like_new", seller: "Youssef (vendeur démo)", styles: ["Minimalist", "Old Money"], isSecondHand: true, isNew: true, description: "Chemise légère pour l'été. Annonce de démonstration." },
-  { id: "5", title: "Sac cabas en cuir", brand: "Maison Test", price: 650, currency: "MAD", category: "Bags", size: "Unique", color: "Noir", condition: "new", seller: "Clothy (catalogue démo)", styles: ["Chic", "Classic"], isSecondHand: false, isNew: false, description: "Grand sac cabas. Produit de démonstration." },
-  { id: "6", title: "Pull en maille épais", brand: "Nordic Démo", price: 420, currency: "MAD", category: "Knitwear", size: "S", color: "Crème", condition: "good", seller: "Lina (vendeuse démo)", styles: ["Casual", "Old Money"], isSecondHand: true, isNew: false, description: "Pull chaud en laine mélangée. Annonce de démonstration." },
-  { id: "7", title: "Robe fleurie légère", brand: "Atelier Démo", price: 390, currency: "MAD", category: "Dresses", size: "M", color: "Vert", condition: "new", seller: "Clothy (catalogue démo)", styles: ["Bohemian", "Chic"], isSecondHand: false, isNew: true, description: "Robe midi à motifs. Produit de démonstration." },
-  { id: "8", title: "Écharpe en laine", brand: "Nordic Démo", price: 150, currency: "MAD", category: "Scarves", size: "Unique", color: "Gris", condition: "like_new", seller: "Nour (vendeuse démo)", styles: ["Classic", "Formal"], isSecondHand: true, isNew: false, description: "Écharpe douce et chaude. Annonce de démonstration." },
+  {
+    id: "1",
+    title: "Pull fin flou « June »",
+    brand: "June",
+    price: 200,
+    currency: "MAD",
+    category: "Knitwear",
+    size: "S / M",
+    color: "Orange vif",
+    condition: "like_new",
+    seller: "Vendeur démo",
+    styles: ["Casual"],
+    seasons: ["spring", "autumn"],
+    isSecondHand: true,
+    isNew: true,
+    description:
+      "Pull léger à encolure ronde et coupe souple (slouchy) en maille fine semi-transparente. Sur la photo, il est porté avec un jean très large délavé et des baskets orange.",
+    images: ["/demo/pull-june.jpg", "/demo/pull-june-look.jpg"],
+    hotspot: { x: 55, y: 47 },
+  },
+  {
+    id: "2",
+    title: "Veste sans manches utilitaire multi-poches",
+    brand: "Urban Outfitters",
+    price: 350,
+    currency: "MAD",
+    category: "Jackets",
+    size: "M / L",
+    color: "Vert olive / kaki",
+    condition: "like_new",
+    seller: "Vendeur démo",
+    styles: ["Bohemian", "Casual"],
+    seasons: ["autumn", "spring"],
+    isSecondHand: true,
+    isNew: true,
+    description:
+      "Gilet sans manches style baroudeur à poches multiples, fermeture zippée et empiècements robustes. Sur la photo, il est porté sur un haut blanc à manches longues, avec un pantalon large marron et un sac orange.",
+    images: ["/demo/gilet-utilitaire.jpg", "/demo/gilet-utilitaire-look.jpg"],
+    hotspot: { x: 40, y: 60 },
+  },
+  {
+    id: "3",
+    title: "Top asymétrique halter à carreaux",
+    brand: "Motel Rocks",
+    price: 350,
+    currency: "MAD",
+    category: "Tops",
+    size: "XS / S",
+    color: "Marron, beige et noir",
+    condition: "like_new",
+    seller: "Vendeur démo",
+    styles: ["Vintage", "Chic"],
+    seasons: ["spring", "summer"],
+    isSecondHand: true,
+    isNew: true,
+    description:
+      "Haut près du corps, sans manches, à col drapé et motif écossais (tartan) avec de subtils détails de strass. Sur la photo, il est porté avec un jean évasé délavé à ceinture chaîne.",
+    images: ["/demo/top-carreaux.jpg", "/demo/top-carreaux-look.jpg"],
+    hotspot: { x: 51, y: 48 },
+  },
+  {
+    id: "4",
+    title: "Chemisier blanc ample à poches poitrine",
+    brand: "Mango",
+    price: 70,
+    currency: "MAD",
+    category: "Shirts",
+    size: "S / M (coupe ample)",
+    color: "Blanc pur",
+    condition: "like_new",
+    seller: "Vendeur démo",
+    styles: ["Classic", "Minimalist"],
+    seasons: ["spring", "summer"],
+    isSecondHand: true,
+    isNew: false,
+    description:
+      "Chemise blanche décontractée à col classique, patte de boutonnage et grandes poches à rabat sur la poitrine. Sur la photo, elle est portée avec un jean large brut et un sac noir matelassé.",
+    images: ["/demo/chemisier-blanc.jpg", "/demo/chemisier-blanc-look.jpg"],
+    hotspot: { x: 49, y: 47 },
+  },
+  {
+    id: "5",
+    title: "Veste courte en jean effet délavé",
+    brand: "Bershka",
+    price: 300,
+    currency: "MAD",
+    category: "Jackets",
+    size: "S / M",
+    color: "Gris anthracite / noir délavé",
+    condition: "like_new",
+    seller: "Vendeur démo",
+    styles: ["Streetwear", "Casual"],
+    seasons: ["autumn", "spring"],
+    isSecondHand: true,
+    isNew: false,
+    description:
+      "Veste courte et structurée en denim gris foncé / noir effet usagé, avec col chemise et boutons métalliques. Sur la photo, elle est portée sur un t-shirt blanc court et un jean large gris délavé.",
+    images: ["/demo/veste-jean-grise.jpg", "/demo/veste-jean-grise-look.jpg"],
+    hotspot: { x: 27, y: 27 },
+  },
+  {
+    id: "6",
+    title: "Ensemble tailleur jupette et veste militaire en denim",
+    brand: "Retrofête",
+    price: 150,
+    currency: "MAD",
+    category: "Sets",
+    size: "S / M",
+    color: "Bleu denim foncé (indigo brut)",
+    condition: "like_new",
+    seller: "Vendeur démo",
+    styles: ["Chic", "Vintage"],
+    seasons: ["autumn", "winter"],
+    isSecondHand: true,
+    isNew: false,
+    description:
+      "Ensemble coordonné en jean brut : mini-jupe droite et veste cintrée à fermeture zippée frontale et multiples boutons décoratifs de style militaire. Sur la photo, il est porté avec des bottes hautes marron et une pochette en cuir marron.",
+    images: ["/demo/ensemble-denim.jpg", "/demo/ensemble-denim-look.jpg"],
+    hotspot: { x: 50, y: 55 },
+  },
 ];
 
 export const CATEGORIES = Array.from(new Set(DEMO_PRODUCTS.map((p) => p.category))).sort();

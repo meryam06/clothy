@@ -25,6 +25,7 @@ export type ShopProduct = {
   isNew: boolean;
   description: string;
   images: string[];
+  hotspot?: { x: number; y: number }; // position (en %) de l'étiquette de prix sur la photo
   isDemo: boolean;
   verifiedBrand: boolean;
 };
@@ -98,7 +99,13 @@ export function fromDb(p: DbProduct): ShopProduct {
 
 function demoProducts(): ShopProduct[] {
   if (!SHOW_DEMO) return [];
-  return DEMO_PRODUCTS.map((p) => ({ ...p, seasons: [], images: [], isDemo: true, verifiedBrand: false }));
+  return DEMO_PRODUCTS.map(({ images, seasons, ...p }) => ({
+    ...p,
+    seasons: seasons ?? [],
+    images: images ?? [],
+    isDemo: true,
+    verifiedBrand: false,
+  }));
 }
 
 // Toutes les annonces actives (les vraies d'abord), plus la démonstration
